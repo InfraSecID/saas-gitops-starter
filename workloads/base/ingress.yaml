@@ -1,0 +1,27 @@
+# workloads/base/ingress.yaml — Ingress dengan paksaan HTTPS/TLS dan rate-limiting di level edge
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: saas-backend-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/limit-rps: "25"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - "__TENANT_NAME__.saas.example.com"
+      secretName: "tenant-tls-cert"
+  rules:
+    - host: "__TENANT_NAME__.saas.example.com"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: saas-backend-svc
+                port:
+                  name: http

@@ -1,0 +1,7 @@
+# workloads/base/namespace.yaml — Namespace template yang di-override per tenant oleh ApplicationSet
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tenant-placeholder
+  labels:
+    saas.platform/managed: "true"

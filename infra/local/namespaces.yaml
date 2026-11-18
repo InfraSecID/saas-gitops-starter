@@ -1,0 +1,35 @@
+# infra/local/namespaces.yaml — Namespace platform untuk mode lokal (kind/minikube)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: argocd
+  labels:
+    app.kubernetes.io/part-of: saas-gitops-platform
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: external-secrets
+  labels:
+    app.kubernetes.io/part-of: saas-gitops-platform
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+  labels:
+    app.kubernetes.io/part-of: saas-gitops-platform
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ingress-nginx
+  labels:
+    app.kubernetes.io/name: ingress-nginx
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: shared-data
+  labels:
+    app.kubernetes.io/name: shared-data

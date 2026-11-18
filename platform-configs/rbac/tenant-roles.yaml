@@ -1,0 +1,23 @@
+# platform-configs/rbac/tenant-roles.yaml — ClusterRole & Role template untuk pembacaan status workload tenant
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: saas-tenant-namespace-reader
+  labels:
+    app.kubernetes.io/part-of: saas-gitops-platform
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services", "configmaps", "resourcequotas", "limitranges"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["autoscaling"]
+    resources: ["horizontalpodautoscalers"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses", "networkpolicies"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["external-secrets.io"]
+    resources: ["secretstores", "externalsecrets"]
+    verbs: ["get", "list", "watch"]

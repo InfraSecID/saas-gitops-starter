@@ -1,0 +1,26 @@
+# workloads/base/kustomization.yaml — Base Kustomize untuk seluruh komponen workload tenant
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: workloads-base-kustomization
+
+resources:
+  - namespace.yaml
+  - serviceaccount.yaml
+  - resourcequota.yaml
+  - limitrange.yaml
+  - networkpolicy.yaml
+  - secretstore.yaml
+  - externalsecret.yaml
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+  - hpa.yaml
+
+labels:
+  - pairs:
+      app.kubernetes.io/name: saas-backend
+      app.kubernetes.io/component: api
+      app.kubernetes.io/part-of: saas-gitops-platform
+    includeSelectors: false
+    includeTemplates: true

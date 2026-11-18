@@ -1,0 +1,21 @@
+# workloads/tenants/tenant-alpha/tenant.yaml — Definisi deklaratif Tenant Alpha (Tier Basic)
+apiVersion: saas.platform.io/v1alpha1
+kind: TenantConfig
+metadata:
+  name: alpha
+  labels:
+    saas.platform/tenant: alpha
+    saas.platform/tier: basic
+tenant:
+  name: alpha
+  tier: basic
+  domain: alpha.saas.example.com
+  imageTag: "1.0.0"
+  partitionKey: "tenant_alpha"
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "250m"
+      memory: "256Mi"

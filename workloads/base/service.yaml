@@ -1,0 +1,15 @@
+# workloads/base/service.yaml — ClusterIP Service untuk backend tenant
+apiVersion: v1
+kind: Service
+metadata:
+  name: saas-backend-svc
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: saas-backend
+    app.kubernetes.io/component: api
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP

@@ -1,0 +1,15 @@
+# workloads/overlays/basic/patch-quota.yaml — ResourceQuota ketat untuk Tier Basic (shared resource pool)
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: tenant-resource-quota
+spec:
+  hard:
+    requests.cpu: "500m"
+    requests.memory: "512Mi"
+    limits.cpu: "1000m"
+    limits.memory: "1Gi"
+    pods: "4"
+    services: "2"
+    configmaps: "5"
+    secrets: "5"

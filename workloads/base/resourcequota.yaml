@@ -1,0 +1,15 @@
+# workloads/base/resourcequota.yaml — ResourceQuota dasar per namespace tenant
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: tenant-resource-quota
+spec:
+  hard:
+    requests.cpu: "500m"
+    requests.memory: "512Mi"
+    limits.cpu: "1000m"
+    limits.memory: "1Gi"
+    pods: "6"
+    services: "3"
+    configmaps: "10"
+    secrets: "10"

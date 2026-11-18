@@ -1,0 +1,21 @@
+# platform-configs/observability/backend-servicemonitor.yaml — ServiceMonitor untuk scraping metrik backend seluruh tenant
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: saas-tenant-backend-monitor
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: saas-backend
+    app.kubernetes.io/part-of: saas-gitops-platform
+spec:
+  namespaceSelector:
+    any: true
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: saas-backend
+      app.kubernetes.io/component: api
+  endpoints:
+    - port: http
+      path: /healthz
+      interval: 15s
+      scrapeTimeout: 5s

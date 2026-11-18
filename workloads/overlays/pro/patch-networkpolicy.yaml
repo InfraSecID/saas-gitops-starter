@@ -1,0 +1,29 @@
+# workloads/overlays/pro/patch-networkpolicy.yaml — Egress khusus ke instance database dedicated Tier Pro
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-tenant-backend-traffic
+spec:
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              app.kubernetes.io/name: shared-data
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: postgres-pro-dedicated
+      ports:
+        - protocol: TCP
+          port: 5432

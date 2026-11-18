@@ -1,0 +1,72 @@
+# infra/local/eso-mock.yaml — External Secrets Operator controller & ClusterSecretStore fake provider lokal
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: external-secrets
+  namespace: external-secrets
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: external-secrets
+  namespace: external-secrets
+  labels:
+    app.kubernetes.io/name: external-secrets
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: external-secrets
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: external-secrets
+    spec:
+      serviceAccountName: external-secrets
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: external-secrets
+          image: ghcr.io/external-secrets/external-secrets:v0.9.13
+          args:
+            - --concurrent=1
+          ports:
+            - containerPort: 8080
+              name: metrics
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65534
+            runAsGroup: 65534
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+---
+# ClusterSecretStore mock menggunakan provider fake untuk pengujian lokal tanpa kredensial cloud
+apiVersion: external-secrets.io/v1beta1
+kind: ClusterSecretStore
+metadata:
+  name: local-fake-secretstore
+spec:
+  provider:
+    fake:
+      data:
+        - key: "/saas/tenants/shared/db-connection"
+          value: "postgres://db_user:__REDACTED_MOCK_DB_CREDENTIAL__@shared-postgres.shared-data.svc.cluster.local:5432/saas_shared"
+          version: "v1"
+        - key: "/saas/tenants/dedicated/db-connection"
+          value: "postgres://pro_user:__REDACTED_MOCK_DB_CREDENTIAL__@dedicated-postgres.shared-data.svc.cluster.local:5432/saas_pro"
+          version: "v1"

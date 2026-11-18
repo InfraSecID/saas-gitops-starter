@@ -1,0 +1,68 @@
+# workloads/base/networkpolicy.yaml — Default-Deny + Whitelist Ketat Ingress/Egress tanpa 0.0.0.0/0
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-tenant-backend-traffic
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: saas-backend
+      app.kubernetes.io/component: api
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Izinkan hanya dari Ingress Controller
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              app.kubernetes.io/name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 3000
+    # Izinkan scraping metrik dari namespace monitoring (Prometheus)
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: saas-gitops-platform
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - protocol: TCP
+          port: 3000
+  egress:
+    # Izinkan resolusi DNS ke CoreDNS di kube-system
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Izinkan koneksi keluar ke database PostgreSQL di namespace shared-data
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              app.kubernetes.io/name: shared-data
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: postgres-shared
+      ports:
+        - protocol: TCP
+          port: 5432

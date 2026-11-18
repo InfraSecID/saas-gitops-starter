@@ -1,0 +1,30 @@
+# platform-configs/rbac/argocd-rbac-cm.yaml — Konfigurasi RBAC Argo CD berbasis Least Privilege
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-rbac-cm
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-rbac-cm
+    app.kubernetes.io/part-of: argocd
+data:
+  policy.default: role:none
+  scopes: "[groups, email]"
+  policy.csv: |
+    p, role:platform-admin, applications, get, tenant-tier-basic/*, allow
+    p, role:platform-admin, applications, create, tenant-tier-basic/*, allow
+    p, role:platform-admin, applications, update, tenant-tier-basic/*, allow
+    p, role:platform-admin, applications, delete, tenant-tier-basic/*, allow
+    p, role:platform-admin, applications, sync, tenant-tier-basic/*, allow
+    p, role:platform-admin, applications, get, tenant-tier-pro/*, allow
+    p, role:platform-admin, applications, create, tenant-tier-pro/*, allow
+    p, role:platform-admin, applications, update, tenant-tier-pro/*, allow
+    p, role:platform-admin, applications, delete, tenant-tier-pro/*, allow
+    p, role:platform-admin, applications, sync, tenant-tier-pro/*, allow
+    p, role:platform-admin, projects, get, tenant-tier-basic, allow
+    p, role:platform-admin, projects, get, tenant-tier-pro, allow
+    p, role:platform-admin, repositories, get, https://github.com/__ORG_NAME__/saas-gitops-starter.git, allow
+    p, role:tenant-auditor, applications, get, tenant-tier-basic/*, allow
+    p, role:tenant-auditor, applications, get, tenant-tier-pro/*, allow
+    g, platform-engineering-team, role:platform-admin
+    g, security-audit-team, role:tenant-auditor

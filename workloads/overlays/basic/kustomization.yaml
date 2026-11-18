@@ -1,0 +1,13 @@
+# workloads/overlays/basic/kustomization.yaml — Overlay Kustomize untuk Tenant Tier Basic
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: workloads-overlay-basic
+
+resources:
+  - ../../base
+
+patches:
+  - path: patch-quota.yaml
+  - path: patch-limitrange.yaml
+  - path: patch-hpa.yaml

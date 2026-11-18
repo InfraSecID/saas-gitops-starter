@@ -1,0 +1,22 @@
+# workloads/tenants/tenant-beta/tenant.yaml — Definisi deklaratif Tenant Beta (Tier Pro)
+apiVersion: saas.platform.io/v1alpha1
+kind: TenantConfig
+metadata:
+  name: beta
+  labels:
+    saas.platform/tenant: beta
+    saas.platform/tier: pro
+tenant:
+  name: beta
+  tier: pro
+  domain: beta.saas.example.com
+  imageTag: "1.0.0"
+  partitionKey: "tenant_beta"
+  dedicatedDatabase: true
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "512Mi"
+    limits:
+      cpu: "1000m"
+      memory: "1Gi"

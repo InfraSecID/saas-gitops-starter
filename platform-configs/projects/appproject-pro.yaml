@@ -1,0 +1,52 @@
+# platform-configs/projects/appproject-pro.yaml — Isolasi AppProject untuk Tenant Tier Pro
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: tenant-tier-pro
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: saas-gitops-platform
+    saas.platform/tier: pro
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: "AppProject terisolasi untuk seluruh tenant Tier Pro (dedicated resources & DB)"
+  sourceRepos:
+    - "https://github.com/__ORG_NAME__/saas-gitops-starter.git"
+  destinations:
+    - namespace: "tenant-pro-*"
+      server: "https://kubernetes.default.svc"
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+  namespaceResourceWhitelist:
+    - group: ""
+      kind: Service
+    - group: ""
+      kind: ServiceAccount
+    - group: ""
+      kind: ConfigMap
+    - group: ""
+      kind: ResourceQuota
+    - group: ""
+      kind: LimitRange
+    - group: "apps"
+      kind: Deployment
+    - group: "autoscaling"
+      kind: HorizontalPodAutoscaler
+    - group: "networking.k8s.io"
+      kind: Ingress
+    - group: "networking.k8s.io"
+      kind: NetworkPolicy
+    - group: "external-secrets.io"
+      kind: SecretStore
+    - group: "external-secrets.io"
+      kind: ExternalSecret
+  roles:
+    - name: pro-tenant-operator
+      description: "Akses baca dan trigger sync untuk aplikasi tenant pro"
+      policies:
+        - p, proj:tenant-tier-pro:pro-tenant-operator, applications, get, tenant-tier-pro/*, allow
+        - p, proj:tenant-tier-pro:pro-tenant-operator, applications, sync, tenant-tier-pro/*, allow
+      groups:
+        - saas-pro-operators

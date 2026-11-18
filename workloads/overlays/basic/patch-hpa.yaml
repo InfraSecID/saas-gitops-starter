@@ -1,0 +1,8 @@
+# workloads/overlays/basic/patch-hpa.yaml — HPA konservatif untuk Tier Basic (1-3 replika)
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: saas-backend-hpa
+spec:
+  minReplicas: 1
+  maxReplicas: 3

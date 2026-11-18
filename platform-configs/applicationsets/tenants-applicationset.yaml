@@ -1,0 +1,115 @@
+# platform-configs/applicationsets/tenants-applicationset.yaml — Onboarding otomatis via Git Directory & File Matrix Generator
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: saas-tenants
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: saas-gitops-platform
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - matrix:
+        generators:
+          # Generator 1: Git directory generator memindai setiap subfolder di workloads/tenants/*
+          - git:
+              repoURL: "https://github.com/__ORG_NAME__/saas-gitops-starter.git"
+              revision: HEAD
+              directories:
+                - path: "workloads/tenants/*"
+          # Generator 2: Membaca metadata deklaratif dari tenant.yaml di dalam folder tersebut
+          - git:
+              repoURL: "https://github.com/__ORG_NAME__/saas-gitops-starter.git"
+              revision: HEAD
+              files:
+                - path: "{{.path.path}}/tenant.yaml"
+  template:
+    metadata:
+      name: "tenant-{{.tenant.tier}}-{{.tenant.name}}"
+      namespace: argocd
+      labels:
+        app.kubernetes.io/managed-by: argocd-applicationset
+        saas.platform/tenant: "{{.tenant.name}}"
+        saas.platform/tier: "{{.tenant.tier}}"
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      # AppProject dipilih otomatis berdasarkan tier (tenant-tier-basic atau tenant-tier-pro)
+      project: "tenant-tier-{{.tenant.tier}}"
+      source:
+        repoURL: "https://github.com/__ORG_NAME__/saas-gitops-starter.git"
+        targetRevision: HEAD
+        # Memilih Kustomize overlay berdasarkan tier: workloads/overlays/basic atau workloads/overlays/pro
+        path: "workloads/overlays/{{.tenant.tier}}"
+        kustomize:
+          namespace: "tenant-{{.tenant.tier}}-{{.tenant.name}}"
+          commonLabels:
+            saas.platform/tenant: "{{.tenant.name}}"
+            saas.platform/tier: "{{.tenant.tier}}"
+          images:
+            - "ghcr.io/__ORG_NAME__/saas-backend:{{.tenant.imageTag}}"
+          patches:
+            - target:
+                kind: Namespace
+                name: tenant-placeholder
+              patch: |-
+                - op: replace
+                  path: /metadata/name
+                  value: tenant-{{.tenant.tier}}-{{.tenant.name}}
+            - target:
+                kind: Deployment
+                name: saas-backend
+              patch: |-
+                - op: replace
+                  path: /spec/template/spec/containers/0/env/0/value
+                  value: "{{.tenant.name}}"
+                - op: replace
+                  path: /spec/template/spec/containers/0/env/1/value
+                  value: "{{.tenant.tier}}"
+                - op: replace
+                  path: /spec/template/spec/containers/0/env/2/value
+                  value: "s3://saas-shared-bucket/tenants/{{.tenant.name}}/"
+                - op: replace
+                  path: /spec/template/spec/containers/0/resources/limits/cpu
+                  value: "{{.tenant.resources.limits.cpu}}"
+                - op: replace
+                  path: /spec/template/spec/containers/0/resources/limits/memory
+                  value: "{{.tenant.resources.limits.memory}}"
+                - op: replace
+                  path: /spec/template/spec/containers/0/resources/requests/cpu
+                  value: "{{.tenant.resources.requests.cpu}}"
+                - op: replace
+                  path: /spec/template/spec/containers/0/resources/requests/memory
+                  value: "{{.tenant.resources.requests.memory}}"
+            - target:
+                kind: Ingress
+                name: saas-backend-ingress
+              patch: |-
+                - op: replace
+                  path: /spec/tls/0/hosts/0
+                  value: "{{.tenant.domain}}"
+                - op: replace
+                  path: /spec/tls/0/secretName
+                  value: "{{.tenant.name}}-tls-cert"
+                - op: replace
+                  path: /spec/rules/0/host
+                  value: "{{.tenant.domain}}"
+      destination:
+        server: "https://kubernetes.default.svc"
+        namespace: "tenant-{{.tenant.tier}}-{{.tenant.name}}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=false
+          - PrunePropagationPolicy=foreground
+          - PruneLast=true
+          - ApplyOutOfSyncOnly=true
+        retry:
+          limit: 3
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 1m

@@ -1,0 +1,15 @@
+# workloads/overlays/pro/patch-quota.yaml — ResourceQuota besar untuk Tier Pro (dedicated compute capacity)
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: tenant-resource-quota
+spec:
+  hard:
+    requests.cpu: "2000m"
+    requests.memory: "2Gi"
+    limits.cpu: "4000m"
+    limits.memory: "4Gi"
+    pods: "15"
+    services: "5"
+    configmaps: "20"
+    secrets: "20"

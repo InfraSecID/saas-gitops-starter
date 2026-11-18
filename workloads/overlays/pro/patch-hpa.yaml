@@ -1,0 +1,8 @@
+# workloads/overlays/pro/patch-hpa.yaml — HPA agresif untuk High Availability Tier Pro (3-10 replika)
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: saas-backend-hpa
+spec:
+  minReplicas: 3
+  maxReplicas: 10

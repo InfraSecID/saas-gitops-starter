@@ -1,0 +1,51 @@
+# platform-configs/projects/appproject-basic.yaml — Isolasi AppProject untuk Tenant Tier Basic
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: tenant-tier-basic
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: saas-gitops-platform
+    saas.platform/tier: basic
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: "AppProject terisolasi untuk seluruh tenant Tier Basic (shared infrastructure)"
+  sourceRepos:
+    - "https://github.com/__ORG_NAME__/saas-gitops-starter.git"
+  destinations:
+    - namespace: "tenant-basic-*"
+      server: "https://kubernetes.default.svc"
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+  namespaceResourceWhitelist:
+    - group: ""
+      kind: Service
+    - group: ""
+      kind: ServiceAccount
+    - group: ""
+      kind: ConfigMap
+    - group: ""
+      kind: ResourceQuota
+    - group: ""
+      kind: LimitRange
+    - group: "apps"
+      kind: Deployment
+    - group: "autoscaling"
+      kind: HorizontalPodAutoscaler
+    - group: "networking.k8s.io"
+      kind: Ingress
+    - group: "networking.k8s.io"
+      kind: NetworkPolicy
+    - group: "external-secrets.io"
+      kind: SecretStore
+    - group: "external-secrets.io"
+      kind: ExternalSecret
+  roles:
+    - name: basic-tenant-readonly
+      description: "Akses baca saja untuk status aplikasi tenant basic"
+      policies:
+        - p, proj:tenant-tier-basic:basic-tenant-readonly, applications, get, tenant-tier-basic/*, allow
+      groups:
+        - saas-basic-viewers
