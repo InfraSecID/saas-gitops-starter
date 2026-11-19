@@ -1,4 +1,5 @@
 # SaaS Multi-Tenant GitOps Starter Kit
+<img width="1280" height="710" alt="21658ecb-3eb1-4317-975b-b128aea05a04" src="https://github.com/user-attachments/assets/9d754f5e-02d5-4283-a51b-efff035f1cc7" />
 
 A ready-to-use GitOps template for running a **multi-tenant SaaS platform on Kubernetes**.
 
